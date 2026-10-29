@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Meherpur Internet — Customer Portal</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --card2: #2c2c2e;
+      --border: #38383a;
+      --text: #ffffff;
+      --muted: #8e8e93;
+      --blue: #0a84ff;
+      --green: #30d158;
+      --red: #ff453a;
+      --orange: #ff9f0a;
+      --teal: #5ac8fa;
+      --radius: 16px;
+    }
+
+    body.light {
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --card2: #e5e5ea;
+      --border: #d1d1d6;
+      --text: #000000;
+      --muted: #6c6c70;
+      --blue: #007aff;
+      --green: #34c759;
+      --red: #ff3b30;
+      --orange: #ff9500;
+      --teal: #32ade6;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                   "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: background .25s, color .25s;
+    }
+
+    html[lang="bn"] body {
+      font-family: "Hind Siliguri", "Noto Sans Bengali", -apple-system, sans-serif;
+    }
+
+    .fa-solid, .fas,
+    .fa-regular, .far,
+    .fa-brands, .fab,
+    i[class*="fa-"] {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
+    }
+
+    .screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 18px 24px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .icon-btn:active { transform: scale(.94); background: var(--card2); }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 18px;
+      transition: background .25s;
+    }
+
+    .login-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      padding-top: 20px;
+    }
+
+    .app-icon {
+      width: 84px;
+      height: 84px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #0a84ff, #0055cc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #fff;
+      margin: 0 auto 18px;
+      box-shadow: 0 10px 30px rgba(10, 132, 255, .35);
+    }
+
+    .login-heading {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+      margin: 0 0 6px;
+    }
+    .login-sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0 0 26px;
+      line-height: 1.45;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .field:last-child { border-bottom: 0; }
+    .field i {
+      width: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .field input {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+      min-width: 0;
+    }
+    .field input::placeholder { color: var(--muted); opacity: .8; }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px 0;
+      margin-bottom: 16px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .remember-row input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--blue);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .remember-row span {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 16px;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--blue);
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      margin-top: 6px;
+    }
+    .btn:active { transform: scale(.98); opacity: .85; }
+    .btn:disabled { opacity: .45; cursor: wait; }
+    .btn.secondary { background: var(--card2); color: var(--text); }
+    .btn.success   { background: var(--green); }
+    .btn.danger    { background: rgba(255, 69, 58, .15); color: var(--red); }
+
+    .msg {
+      font-size: 14px;
+      text-align: center;
+      margin-top: 14px;
+      color: var(--muted);
+      min-height: 20px;
+    }
+    .msg.error { color: var(--red); }
+
+    /* ===== Profile ===== */
+    .profile-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 0 8px;
+    }
+    .avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #0a84ff, #0055cc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .profile-head h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 3px;
+      letter-spacing: -.3px;
+    }
+    .profile-head .role {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ===== Days Circle ===== */
+    .days-circle {
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      margin: 12px auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 25%, #4de58a, #30d158 45%, #1fa543 100%);
+      box-shadow:
+        0 12px 32px rgba(48, 209, 88, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .25);
+      padding: 5px;
+      position: relative;
+      animation: circleIn .45s cubic-bezier(.2,1.3,.4,1);
+    }
+
+    .days-circle.expired {
+      background: radial-gradient(circle at 30% 25%, #ff7a70, #ff453a 45%, #d63a30 100%);
+      box-shadow:
+        0 12px 32px rgba(255, 69, 58, .4),
+        inset 0 1px 0 rgba(255, 255, 255, .25);
+    }
+
+    @keyframes circleIn {
+      from { transform: scale(.5); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    .days-circle-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .days-number {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--green);
+      letter-spacing: -1.5px;
+    }
+    .days-circle.expired .days-number { color: var(--red); }
+
+    .days-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 600;
+      padding: 0 6px;
+      line-height: 1.25;
+    }
+
+    /* ===== Section Label ===== */
+    .section-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      margin: 8px 4px 8px;
+      font-weight: 600;
+    }
+
+    /* ===== Info List ===== */
+    .info-list { background: var(--card); border-radius: var(--radius); overflow: hidden; }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .info-row:last-child { border-bottom: 0; }
+    .info-row:active { background: var(--card2); }
+
+    .info-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .ic-name     { background: #0a84ff; }
+    .ic-phone    { background: #30d158; }
+    .ic-address  { background: #ff9f0a; }
+    .ic-user     { background: #bf5af2; }
+    .ic-password { background: #ff453a; }
+    .ic-expiry   { background: #5ac8fa; }
+
+    .info-content { flex: 1; min-width: 0; }
+    .info-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .info-value {
+      font-size: 16px;
+      color: var(--text);
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .pw-wrap { display: flex; align-items: center; gap: 10px; }
+    .pw-wrap .info-value {
+      flex: 1;
+      font-family: "SF Mono", ui-monospace, Menlo, monospace;
+      letter-spacing: .5px;
+    }
+    .eye-btn {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px;
+      flex-shrink: 0;
+    }
+    .eye-btn:active { color: var(--text); }
+
+    /* ===== Status Badge (Active / Expired) ===== */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-left: auto;
+      line-height: 1.2;
+    }
+    .status-badge.active {
+      background: rgba(48, 209, 88, .18);
+      color: var(--green);
+    }
+    .status-badge.expired {
+      background: rgba(255, 69, 58, .18);
+      color: var(--red);
+    }
+    body.light .status-badge.active  { background: rgba(52, 199, 89, .15); }
+    body.light .status-badge.expired { background: rgba(255, 59, 48, .15); }
+
+    .hidden { display: none !important; }
+
+    .home-indicator {
+      width: 134px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--text);
+      opacity: .25;
+      margin: 10px auto 6px;
+      flex-shrink: 0;
+    }
+
+    /* ===== Modals ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn .2s ease;
+    }
+    .modal-backdrop.alert-center { align-items: center; padding: 20px; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .sheet {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border-radius: 22px 22px 0 0;
+      padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+      animation: slideUp .28s cubic-bezier(.22,1,.36,1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .sheet-grip {
+      width: 40px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--border);
+      margin: 0 auto 16px;
+    }
+
+    .sheet-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      text-align: center;
+    }
+
+    .setting-group { margin-bottom: 20px; }
+    .setting-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      margin: 0 4px 8px;
+      font-weight: 600;
+    }
+
+    .segmented {
+      display: flex;
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .segmented button {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+    }
+    .segmented button.active {
+      background: var(--card);
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+      font-weight: 600;
+    }
+    body.light .segmented button.active {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    }
+
+    .ios-alert {
+      width: 280px;
+      max-width: 100%;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      text-align: center;
+      animation: popIn .22s cubic-bezier(.2,1.3,.4,1);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    @keyframes popIn {
+      from { transform: scale(.85); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+    .ios-alert-body { padding: 22px 20px 18px; }
+    .ios-alert-icon { font-size: 42px; color: var(--red); margin-bottom: 10px; }
+    .ios-alert-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: -.2px;
+    }
+    .ios-alert-text {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+    .ios-alert-btn {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid var(--border);
+      background: transparent;
+      color: var(--blue);
+      font: inherit;
+      font-size: 17px;
+      font-weight: 600;
+      padding: 15px;
+      cursor: pointer;
+    }
+    .ios-alert-btn:active { background: var(--card2); }
+
+    @media (max-width: 380px) {
+      .login-heading { font-size: 22px; }
+      .days-circle { width: 116px; height: 116px; }
+      .days-number { font-size: 34px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="screen" style="padding-bottom:0; flex:0 0 auto;">
+    <div class="top-bar">
+      <button id="settingsBtn" class="icon-btn" aria-label="Settings">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="loginScreen" class="screen" style="padding-top:0;">
+    <div class="login-wrap">
+
+      <div class="app-icon">
+        <i class="fa-solid fa-wifi"></i>
+      </div>
+
+      <h1 class="login-heading" id="loginTitle">Meherpur Internet</h1>
+      <p class="login-sub" id="loginSub">আপনার তথ্য দেখতে লগইন করুন</p>
+
+      <div class="card">
+        <div class="field">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <input id="mobileInput" type="tel" inputmode="numeric"
+                 autocomplete="off" data-i18n-ph="mobilePlaceholder">
+        </div>
+        <div class="field">
+          <i class="fa-solid fa-key"></i>
+          <input id="codeInput" type="text" inputmode="numeric"
+                 autocomplete="off" maxlength="10" data-i18n-ph="codePlaceholder">
+        </div>
+      </div>
+
+      <label class="remember-row" for="rememberMe">
+        <input id="rememberMe" type="checkbox">
+        <span data-i18n="rememberMe">মনে রাখুন (পরের বার আবার লগইন করতে হবে না)</span>
+      </label>
+
+      <button id="loginBtn" class="btn" type="button">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span id="loginBtnText">লগইন করুন</span>
+      </button>
+
+      <div id="loginMsg" class="msg" role="status"></div>
+    </div>
+  </div>
+
+  <div id="profileScreen" class="screen hidden" style="padding-top:0;">
+
+    <div class="profile-head">
+      <div class="avatar" id="avatarInitial">M</div>
+      <div>
+        <h2 id="profileName">—</h2>
+        <div class="role" id="profileRole">Meherpur Internet Customer</div>
+      </div>
+    </div>
+
+    <!-- Days Circle (only for NEXT ONLINE users with expiry data) -->
+    <div id="daysCircle" class="days-circle hidden">
+      <div class="days-circle-inner">
+        <div class="days-number" id="daysNumber">0</div>
+        <div class="days-label" id="daysLabel">days left</div>
+      </div>
+    </div>
+
+    <div class="section-label" id="sectionLabel">আপনার তথ্য</div>
+
+    <div class="info-list">
+
+      <div class="info-row">
+        <div class="info-icon ic-name"><i class="fa-solid fa-user"></i></div>
+        <div class="info-content">
+          <div class="info-label"><i class="fa-solid fa-user"></i> <span data-i18n="name">নাম</span></div>
+          <div class="info-value" id="infoName">—</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon ic-phone"><i class="fa-solid fa-mobile-screen-button"></i></div>
+        <div class="info-content">
+          <div class="info-label"><i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="phone">মোবাইল নম্বর</span></div>
+          <div class="info-value" id="infoPhone">—</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon ic-address"><i class="fa-solid fa-location-dot"></i></div>
+        <div class="info-content">
+          <div class="info-label"><i class="fa-solid fa-location-dot"></i> <span data-i18n="address">ঠিকানা</span></div>
+          <div class="info-value" id="infoAddress">—</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon ic-user"><i class="fa-solid fa-id-badge"></i></div>
+        <div class="info-content">
+          <div class="info-label"><i class="fa-solid fa-id-badge"></i> <span data-i18n="userId">ইউজার আইডি</span></div>
+          <div class="info-value" id="infoUserId">—</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon ic-password"><i class="fa-solid fa-lock"></i></div>
+        <div class="info-content">
+          <div class="info-label"><i class="fa-solid fa-lock"></i> <span data-i18n="password">পাসওয়ার্ড</span></div>
+          <div class="pw-wrap">
+            <div class="info-value" id="infoPassword">••••••</div>
+            <button class="eye-btn" id="togglePw" type="button" aria-label="Toggle password">
+              <i id="eyeIcon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expiry Date Row -->
+      <div class="info-row hidden" id="expiryRow">
+        <div class="info-icon ic-expiry"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="info-content">
+          <div class="info-label">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span data-i18n="expiryDate">এক্সপায়ারি তারিখ</span>
+            <span id="expiryStatusBadge" class="status-badge hidden"></span>
+          </div>
+          <div class="pw-wrap">
+            <div class="info-value" id="infoExpiry" style="font-family: inherit; letter-spacing: 0;">—</div>
+            <button class="eye-btn" id="refreshExpiry" type="button" aria-label="Refresh expiry">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button id="payBillBtn" class="btn success hidden" type="button" style="margin-top:18px">
+      <i class="fa-solid fa-credit-card"></i>
+      <span data-i18n="payBill">বিল পরিশোধ করুন</span>
+    </button>
+
+  </div>
+
+  <div class="home-indicator"></div>
+
+  <div id="settingsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet-grip"></div>
+      <h3 class="sheet-title" data-i18n="settings">সেটিংস</h3>
+
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="theme">থিম</div>
+        <div class="segmented" id="themeSegmented">
+          <button type="button" data-theme="light" data-i18n="light">লাইট</button>
+          <button type="button" data-theme="dark" data-i18n="dark">ডার্ক</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="language">ভাষা</div>
+        <div class="segmented" id="langSegmented">
+          <button type="button" data-lang="bn">বাংলা</button>
+          <button type="button" data-lang="en">English</button>
+        </div>
+      </div>
+
+      <div class="setting-group hidden" id="logoutGroup">
+        <div class="setting-label" data-i18n="account">অ্যাকাউন্ট</div>
+        <button id="logoutBtn" class="btn danger" type="button">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span data-i18n="logout">লগআউট</span>
+        </button>
+      </div>
+
+      <button id="closeSettings" class="btn secondary" type="button" data-i18n="close">বন্ধ করুন</button>
+    </div>
+  </div>
+
+  <div id="iosAlert" class="modal-backdrop alert-center hidden" role="alertdialog" aria-modal="true">
+    <div class="ios-alert">
+      <div class="ios-alert-body">
+        <div class="ios-alert-icon"><i class="fa-solid fa-wifi"></i></div>
+        <h3 class="ios-alert-title" id="iosAlertTitle">No Internet Connection</h3>
+        <p class="ios-alert-text" id="iosAlertText">Please check your connection.</p>
+      </div>
+      <button class="ios-alert-btn" id="iosAlertBtn" type="button">OK</button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // SUPABASE CONFIG
+    // =========================================================
+    const SUPABASE_URL = "https://swvvhggnzewxtmntsiet.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LlsP7KbBaJ-Q9xH73l6rug__meeN1i3";
+    const TABLE_NAME = "olt_customers";
+    const PAY_BILL_BASE = "https://ispbill.com/pay.php?c=1293&q=";
+
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const $ = id => document.getElementById(id);
+
+    // =========================================================
+    // i18n
+    // =========================================================
+    const I18N = {
+      bn: {
+        loginSub: "আপনার তথ্য দেখতে লগইন করুন",
+        mobilePlaceholder: "মোবাইল নম্বর",
+        codePlaceholder: "ইউজার আইডি",
+        rememberMe: "মনে রাখুন (পরের বার আবার লগইন করতে হবে না)",
+        loginBtn: "লগইন করুন",
+        loggingIn: "যাচাই করা হচ্ছে...",
+        enterMobile: "মোবাইল নম্বর দিন।",
+        enterCode: "ইউজার আইডি দিন।",
+        wrongCreds: "মোবাইল নম্বর অথবা ইউজার আইডি সঠিক নয়।",
+        loginFail: "লগইন ব্যর্থ: ",
+        sectionLabel: "আপনার তথ্য",
+        role: "Meherpur Internet গ্রাহক",
+        name: "নাম",
+        phone: "মোবাইল নম্বর",
+        address: "ঠিকানা",
+        userId: "ইউজার আইডি",
+        password: "পাসওয়ার্ড",
+        expiryDate: "এক্সপায়ারি তারিখ",
+        expiryLoading: "লোড হচ্ছে...",
+        expiryError: "লোড করা যায়নি — আবার চেষ্টা করুন",
+        expiryNA: "পাওয়া যায়নি",
+        logout: "লগআউট",
+        settings: "সেটিংস",
+        theme: "থিম",
+        language: "ভাষা",
+        account: "অ্যাকাউন্ট",
+        light: "লাইট",
+        dark: "ডার্ক",
+        close: "বন্ধ করুন",
+        payBill: "বিল পরিশোধ করুন",
+        noInternetTitle: "ইন্টারনেট সংযোগ নেই",
+        noInternetMsg: "আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+        ok: "ঠিক আছে",
+        daysLeft: "দিন বাকি",
+        daysAgo: "দিন আগে",
+        active: "সক্রিয়",
+        expired: "মেয়াদ শেষ"
+      },
+      en: {
+        loginSub: "Log in to view your information",
+        mobilePlaceholder: "Mobile Number",
+        codePlaceholder: "User ID",
+        rememberMe: "Remember me (stay logged in next time)",
+        loginBtn: "Log In",
+        loggingIn: "Verifying...",
+        enterMobile: "Please enter your mobile number.",
+        enterCode: "Please enter your user ID.",
+        wrongCreds: "Mobile number or user ID is incorrect.",
+        loginFail: "Login failed: ",
+        sectionLabel: "Your Information",
+        role: "Meherpur Internet Customer",
+        name: "Name",
+        phone: "Mobile Number",
+        address: "Address",
+        userId: "User ID",
+        password: "Password",
+        expiryDate: "Expiry Date",
+        expiryLoading: "Loading...",
+        expiryError: "Unable to load — try again",
+        expiryNA: "Not available",
+        logout: "Log Out",
+        settings: "Settings",
+        theme: "Theme",
+        language: "Language",
+        account: "Account",
+        light: "Light",
+        dark: "Dark",
+        close: "Close",
+        payBill: "Pay Bill",
+        noInternetTitle: "No Internet Connection",
+        noInternetMsg: "Please check your internet connection and try again.",
+        ok: "OK",
+        daysLeft: "days left",
+        daysAgo: "days ago",
+        active: "Active",
+        expired: "Expired"
+      }
+    };
+
+    // =========================================================
+    // STATE
+    // =========================================================
+    const PREFS_KEY = "mhpi_prefs";
+    const SESSION_KEY = "mhpi_session";
+    const REMEMBER_KEY = "mhpi_remember";
+
+    let prefs = { theme: "dark", lang: "bn" };
+    let currentUser = null;
+
+    function loadPrefs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
+        if (saved && saved.theme && saved.lang) prefs = saved;
+      } catch (e) {}
+    }
+    function savePrefs() { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); }
+
+    function applyTheme() {
+      document.body.classList.toggle("light", prefs.theme === "light");
+      document.querySelectorAll("#themeSegmented button").forEach(b => {
+        b.classList.toggle("active", b.dataset.theme === prefs.theme);
+      });
+    }
+
+    function t(key) {
+      return (I18N[prefs.lang] && I18N[prefs.lang][key]) || I18N.en[key] || key;
+    }
+
+    function applyLanguage() {
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        el.placeholder = t(el.dataset.i18nPh);
+      });
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      $("loginSub").textContent = t("loginSub");
+      $("loginBtnText").textContent = t("loginBtn");
+      $("sectionLabel").textContent = t("sectionLabel");
+      $("profileRole").textContent = t("role");
+      document.querySelectorAll("#langSegmented button").forEach(b => {
+        b.classList.toggle("active", b.dataset.lang === prefs.lang);
+      });
+      document.documentElement.lang = prefs.lang;
+
+      // Re-render expiry display if a user is logged in with expiry data
+      if (currentUser && currentUser.expiry_date) {
+        updateExpiryDisplay(currentUser);
+      }
+    }
+
+    // =========================================================
+    // iOS ALERT
+    // =========================================================
+    function showIosAlert(titleKey, msgKey) {
+      $("iosAlertTitle").textContent = t(titleKey);
+      $("iosAlertText").textContent = t(msgKey);
+      $("iosAlertBtn").textContent = t("ok");
+      $("iosAlert").classList.remove("hidden");
+    }
+    function hideIosAlert() { $("iosAlert").classList.add("hidden"); }
+
+    $("iosAlertBtn").addEventListener("click", hideIosAlert);
+    $("iosAlert").addEventListener("click", e => {
+      if (e.target === $("iosAlert")) hideIosAlert();
+    });
+
+    // =========================================================
+    // SETTINGS
+    // =========================================================
+    function openSettings() {
+      updateLogoutVisibility();
+      $("settingsModal").classList.remove("hidden");
+    }
+    function closeSettings() { $("settingsModal").classList.add("hidden"); }
+
+    function updateLogoutVisibility() {
+      $("logoutGroup").classList.toggle("hidden", !currentUser);
+    }
+
+    $("settingsBtn").addEventListener("click", openSettings);
+    $("closeSettings").addEventListener("click", closeSettings);
+    $("settingsModal").addEventListener("click", e => {
+      if (e.target === $("settingsModal")) closeSettings();
+    });
+
+    document.querySelectorAll("#themeSegmented button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        prefs.theme = btn.dataset.theme;
+        applyTheme();
+        savePrefs();
+      });
+    });
+
+    document.querySelectorAll("#langSegmented button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        prefs.lang = btn.dataset.lang;
+        applyLanguage();
+        savePrefs();
+      });
+    });
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
+    function showLoginMessage(msg, isError = false) {
+      $("loginMsg").textContent = msg;
+      $("loginMsg").classList.toggle("error", isError);
+    }
+
+    function displayValue(v) {
+      if (v === null || v === undefined || v === "") return "—";
+      return String(v);
+    }
+
+    function isOffline() {
+      return typeof navigator !== "undefined" && navigator.onLine === false;
+    }
+
+    // =========================================================
+    // DATE HELPERS — Parse, Format, Days
+    // =========================================================
+    const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+    function toBnDigits(s) {
+      return String(s).replace(/\d/g, d => BN_DIGITS[d]);
+    }
+
+    const MONTHS_EN = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    const MONTHS_BN = [
+      "জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন",
+      "জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"
+    ];
+
+    // Parses "13-10-2026 16:00:00" → Date object
+    function parseExpiryDate(str) {
+      if (!str) return null;
+      const m = String(str).match(/(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+      if (!m) return null;
+      return new Date(
+        parseInt(m[3], 10),
+        parseInt(m[2], 10) - 1,
+        parseInt(m[1], 10),
+        parseInt(m[4], 10),
+        parseInt(m[5], 10),
+        m[6] ? parseInt(m[6], 10) : 0
+      );
+    }
+
+    // Bengali time-of-day period
+    function getBnTimePeriod(hour24) {
+      if (hour24 >= 5  && hour24 < 12) return "সকাল";
+      if (hour24 >= 12 && hour24 < 16) return "দুপুর";
+      if (hour24 >= 16 && hour24 < 18) return "বিকাল";
+      if (hour24 >= 18 && hour24 < 20) return "সন্ধ্যা";
+      return "রাত";
+    }
+
+    // Format: BN → "০১ জানুয়ারি ২০২৬, বিকাল: ৪:০০"
+    //         EN → "01 January 2026, 4:00 PM"
+    function formatExpiryDate(date, lang) {
+      if (!date) return "—";
+      const day = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      const h24 = date.getHours();
+      const min = date.getMinutes();
+      const h12 = h24 % 12 || 12;
+      const minStr = String(min).padStart(2, "0");
+
+      if (lang === "bn") {
+        return `${toBnDigits(String(day).padStart(2, "0"))} ${MONTHS_BN[month]} ${toBnDigits(year)}, ${getBnTimePeriod(h24)}: ${toBnDigits(h12)}:${toBnDigits(minStr)}`;
+      }
+      const ampm = h24 < 12 ? "AM" : "PM";
+      return `${String(day).padStart(2, "0")} ${MONTHS_EN[month]} ${year}, ${h12}:${minStr} ${ampm}`;
+    }
+
+    // Returns { isActive, days }
+    function getDaysInfo(date) {
+      const now = new Date();
+      const diffMs = date.getTime() - now.getTime();
+      const dayMs = 86400000;
+      const isActive = diffMs > 0;
+      const days = isActive
+        ? Math.max(1, Math.ceil(diffMs / dayMs))
+        : Math.max(1, Math.ceil(-diffMs / dayMs));
+      return { isActive, days };
+    }
+
+    // Updates the expiry row, badge, and days circle
+    function updateExpiryDisplay(user) {
+      if (!user || !user.expiry_date) return;
+
+      const date = parseExpiryDate(user.expiry_date);
+      if (!date) {
+        $("infoExpiry").textContent = user.expiry_date;
+        $("infoExpiry").style.color = "";
+        $("daysCircle").classList.add("hidden");
+        $("expiryStatusBadge").classList.add("hidden");
+        return;
+      }
+
+      // Formatted date text
+      $("infoExpiry").textContent = formatExpiryDate(date, prefs.lang);
+      $("infoExpiry").style.color = "";
+
+      // Days info
+      const { isActive, days } = getDaysInfo(date);
+
+      // Days Circle
+      const circle = $("daysCircle");
+      circle.classList.remove("hidden");
+      circle.classList.toggle("expired", !isActive);
+
+      const numStr = prefs.lang === "bn" ? toBnDigits(days) : String(days);
+      const numEl = $("daysNumber");
+      numEl.textContent = numStr;
+      numEl.style.fontSize = numStr.length > 2 ? "28px" : "";
+
+      $("daysLabel").textContent = isActive ? t("daysLeft") : t("daysAgo");
+
+      // Status Badge
+      const badge = $("expiryStatusBadge");
+      badge.classList.remove("hidden", "active", "expired");
+      badge.classList.add(isActive ? "active" : "expired");
+      badge.textContent = isActive ? t("active") : t("expired");
+    }
+
+    // =========================================================
+    // EXPIRY FETCH — via Edge Function
+    // =========================================================
+    async function fetchExpiryDate(userId) {
+      if (!userId) return null;
+      try {
+        const { data, error } = await db.functions.invoke("get-expiry", {
+          body: { userId },
+        });
+        if (error) throw error;
+        return data?.expiry || null;
+      } catch (err) {
+        console.error("Edge function error:", err);
+        return null;
+      }
+    }
+
+    async function loadExpiry(user, { silent = false } = {}) {
+      if (!user || !user.id_name) return;
+      const userId = user.id_name;
+
+      if (!silent) {
+        $("infoExpiry").textContent = t("expiryLoading");
+        $("infoExpiry").style.color = "var(--muted)";
+      }
+
+      const date = await fetchExpiryDate(userId);
+
+      if (!currentUser || currentUser.id_name !== userId) return;
+
+      if (date) {
+        user.expiry_date = date;
+
+        if (sessionStorage.getItem(SESSION_KEY)) {
+          try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(user)); } catch (e) {}
+        }
+        if (localStorage.getItem(REMEMBER_KEY)) {
+          try { localStorage.setItem(REMEMBER_KEY, JSON.stringify(user)); } catch (e) {}
+        }
+
+        updateExpiryDisplay(user);
+      } else {
+        if (!user.expiry_date) {
+          $("infoExpiry").textContent = t("expiryError");
+          $("infoExpiry").style.color = "var(--red)";
+          $("daysCircle").classList.add("hidden");
+          $("expiryStatusBadge").classList.add("hidden");
+        }
+      }
+    }
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
+    async function handleLogin() {
+      const mobileRaw = $("mobileInput").value.trim();
+      const codeRaw   = $("codeInput").value.trim();
+
+      if (!mobileRaw) { showLoginMessage(t("enterMobile"), true); return; }
+      if (!codeRaw)   { showLoginMessage(t("enterCode"), true); return; }
+
+      if (isOffline()) {
+        showIosAlert("noInternetTitle", "noInternetMsg");
+        return;
+      }
+
+      const mobileDigits = mobileRaw.replace(/\D/g, "");
+      const codeDigits = codeRaw.replace(/\D/g, "");
+      if (!codeDigits) { showLoginMessage(t("wrongCreds"), true); return; }
+      const codePadded = codeDigits.padStart(3, "0");
+
+      const userIdCandidates = [
+        "MHPI-" + codeDigits, "MHPI-" + codePadded,
+        "mhpi-" + codeDigits, "mhpi-" + codePadded,
+        codeDigits, codePadded
+      ].map(s => s.toUpperCase());
+
+      $("loginBtn").disabled = true;
+      showLoginMessage(t("loggingIn"));
+
+      try {
+        const { data, error } = await db
+          .from(TABLE_NAME)
+          .select("name, phone_no, address, id_name, password, company")
+          .ilike("phone_no", "%" + mobileDigits + "%");
+
+        if (error) throw error;
+
+        let user = null;
+        for (const row of (data || [])) {
+          const phoneNorm = String(row.phone_no || "").replace(/\D/g, "");
+          const idNorm    = String(row.id_name || "").trim().toUpperCase();
+          const phoneMatches =
+            phoneNorm === mobileDigits ||
+            phoneNorm.endsWith(mobileDigits) ||
+            mobileDigits.endsWith(phoneNorm);
+          const idMatches = userIdCandidates.includes(idNorm);
+          if (phoneMatches && idMatches) { user = row; break; }
+        }
+
+        if (!user) { showLoginMessage(t("wrongCreds"), true); return; }
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+        if ($("rememberMe").checked) {
+          localStorage.setItem(REMEMBER_KEY, JSON.stringify(user));
+        } else {
+          localStorage.removeItem(REMEMBER_KEY);
+        }
+
+        showProfile(user);
+      } catch (err) {
+        console.error("Login error:", err);
+        if (err instanceof TypeError || /fetch|network|failed/i.test(err.message || "")) {
+          showIosAlert("noInternetTitle", "noInternetMsg");
+        } else {
+          showLoginMessage(t("loginFail") + (err.message || "Unknown error"), true);
+        }
+      } finally {
+        $("loginBtn").disabled = false;
+      }
+    }
+
+    // =========================================================
+    // PROFILE
+    // =========================================================
+    let currentPassword = "";
+
+    function showProfile(user) {
+      currentUser = user;
+      $("loginScreen").classList.add("hidden");
+      $("profileScreen").classList.remove("hidden");
+
+      const name = displayValue(user.name);
+      $("profileName").textContent = name;
+      $("avatarInitial").textContent = name !== "—" ? name.charAt(0).toUpperCase() : "M";
+
+      $("infoName").textContent    = name;
+      $("infoPhone").textContent   = displayValue(user.phone_no);
+      $("infoAddress").textContent = displayValue(user.address);
+      $("infoUserId").textContent  = displayValue(user.id_name);
+
+      currentPassword = displayValue(user.password);
+      $("infoPassword").textContent = "••••••";
+      $("eyeIcon").className = "fa-solid fa-eye";
+      $("togglePw").dataset.visible = "false";
+
+      const company = String(user.company || "").trim().toUpperCase();
+      const isNextOnline = company === "NEXT ONLINE";
+      const payBtn = $("payBillBtn");
+      const expiryRow = $("expiryRow");
+
+      if (isNextOnline && user.id_name) {
+        payBtn.classList.remove("hidden");
+        payBtn.onclick = () => {
+          window.open(PAY_BILL_BASE + encodeURIComponent(user.id_name), "_blank", "noopener");
+        };
+
+        expiryRow.classList.remove("hidden");
+
+        if (user.expiry_date) {
+          // Instant display from cache
+          updateExpiryDisplay(user);
+          // Silent refresh in background
+          loadExpiry(user, { silent: true });
+        } else {
+          // No cache → loading state
+          $("infoExpiry").textContent = t("expiryLoading");
+          $("infoExpiry").style.color = "var(--muted)";
+          $("daysCircle").classList.add("hidden");
+          $("expiryStatusBadge").classList.add("hidden");
+          loadExpiry(user);
+        }
+      } else {
+        payBtn.classList.add("hidden");
+        payBtn.onclick = null;
+        expiryRow.classList.add("hidden");
+        $("daysCircle").classList.add("hidden");
+        $("expiryStatusBadge").classList.add("hidden");
+        $("infoExpiry").textContent = "—";
+      }
+
+      updateLogoutVisibility();
+    }
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+    function logout() {
+      sessionStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(REMEMBER_KEY);
+      currentUser = null;
+      closeSettings();
+      $("profileScreen").classList.add("hidden");
+      $("loginScreen").classList.remove("hidden");
+      $("mobileInput").value = "";
+      $("codeInput").value = "";
+      $("rememberMe").checked = false;
+      $("payBillBtn").classList.add("hidden");
+      $("expiryRow").classList.add("hidden");
+      $("daysCircle").classList.add("hidden");
+      $("expiryStatusBadge").classList.add("hidden");
+      $("infoExpiry").textContent = "—";
+      showLoginMessage("");
+      updateLogoutVisibility();
+      $("mobileInput").focus();
+    }
+
+    // =========================================================
+    // PASSWORD TOGGLE
+    // =========================================================
+    $("togglePw").addEventListener("click", () => {
+      const btn = $("togglePw");
+      const visible = btn.dataset.visible === "true";
+      if (visible) {
+        $("infoPassword").textContent = "••••••";
+        $("eyeIcon").className = "fa-solid fa-eye";
+        btn.dataset.visible = "false";
+      } else {
+        $("infoPassword").textContent = currentPassword;
+        $("eyeIcon").className = "fa-solid fa-eye-slash";
+        btn.dataset.visible = "true";
+      }
+    });
+
+    // =========================================================
+    // EXPIRY RETRY BUTTON
+    // =========================================================
+    $("refreshExpiry").addEventListener("click", () => {
+      if (!currentUser) return;
+      const company = String(currentUser.company || "").trim().toUpperCase();
+      if (company !== "NEXT ONLINE" || !currentUser.id_name) return;
+      delete currentUser.expiry_date;
+      $("daysCircle").classList.add("hidden");
+      $("expiryStatusBadge").classList.add("hidden");
+      loadExpiry(currentUser);
+    });
+
+    // =========================================================
+    // EVENT BINDINGS
+    // =========================================================
+    $("loginBtn").addEventListener("click", handleLogin);
+    $("logoutBtn").addEventListener("click", logout);
+    $("mobileInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") $("codeInput").focus();
+    });
+    $("codeInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") handleLogin();
+    });
+
+    // =========================================================
+    // INIT
+    // =========================================================
+    loadPrefs();
+    applyTheme();
+    applyLanguage();
+
+    (function restoreSession() {
+      const remembered = localStorage.getItem(REMEMBER_KEY);
+      if (remembered) {
+        try { showProfile(JSON.parse(remembered)); return; }
+        catch (e) { localStorage.removeItem(REMEMBER_KEY); }
+      }
+      const session = sessionStorage.getItem(SESSION_KEY);
+      if (session) {
+        try { showProfile(JSON.parse(session)); return; }
+        catch (e) { sessionStorage.removeItem(SESSION_KEY); }
+      }
+      updateLogoutVisibility();
+      $("mobileInput").focus();
+    })();
+  </script>
+</body>
+</html>
